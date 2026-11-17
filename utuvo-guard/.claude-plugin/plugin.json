@@ -1,0 +1,30 @@
+{
+  "name": "utuvo-guard",
+  "version": "1.0.0",
+  "description": "Guard / 防呆閘 — stops known agent mistakes before a Bash command runs (wrangler r2 without --remote, npm uninstall -g without --prefix, pkill -f rsync, self-matching pgrep waits, AppleScript content search in Mail) and protects original audio masters from being deleted, moved, overwritten or converted in place. Add `# guard-ok: <reason>` to override; everything is logged to ~/.local/log/utuvo-guard.log.",
+  "author": {
+    "name": "UTUVO"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mickyyang-1407/utuvo-claude-mods",
+  "keywords": [
+    "safety",
+    "audio",
+    "masters",
+    "guard"
+  ],
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language 語言",
+      "description": "auto follows your system language (LC_ALL / LANG); zh-TW = 繁體中文; en = English.",
+      "options": [
+        "auto",
+        "zh-TW",
+        "en"
+      ],
+      "default": "auto"
+    }
+  },
+  "icon": "./.claude-plugin/icon.png"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "utuvo-loudness",
+  "version": "1.0.0",
+  "description": "Loudness card / 響度卡 — when ffmpeg measures loudness (ebur128 or loudnorm), draws Integrated, True Peak and LRA under the tool row and checks them against Atmos Music, Apple Music, Spotify/YouTube and EBU R128 targets.",
+  "author": {
+    "name": "UTUVO"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mickyyang-1407/utuvo-claude-mods",
+  "keywords": [
+    "audio",
+    "loudness",
+    "ffmpeg",
+    "mastering"
+  ],
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language 語言",
+      "description": "auto follows your system language (LC_ALL / LANG); zh-TW = 繁體中文; en = English.",
+      "options": [
+        "auto",
+        "zh-TW",
+        "en"
+      ],
+      "default": "auto"
+    }
+  },
+  "icon": "./.claude-plugin/icon.png"
+}

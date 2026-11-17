@@ -1,0 +1,3 @@
+# credscan allow-list: sha256 of whole file content (auto-expires if the file changes)
+# make-colors.js line 372 = sRGB gamma constant 1/2.4 (16 digits), not a card number
+eb982201d391d85c2ace60cb1f012f9bd87dd2ce5bd5f38312bb749e105613be

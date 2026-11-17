@@ -1,0 +1,31 @@
+{
+  "name": "utuvo-catalog",
+  "version": "1.0.0",
+  "description": "Setup catalog / 設定清單 — /catalog opens a pane with the tokens each MCP server, skill, memory file and agent adds to the context, how often each was used and when last; anything unused for 14 days is marked. Read-only.",
+  "author": {
+    "name": "UTUVO"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mickyyang-1407/utuvo-claude-mods",
+  "keywords": [
+    "context",
+    "tokens",
+    "mcp",
+    "skills"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language 語言",
+      "description": "auto follows your system language (LC_ALL / LANG); zh-TW = 繁體中文; en = English.",
+      "options": [
+        "auto",
+        "zh-TW",
+        "en"
+      ],
+      "default": "auto"
+    }
+  },
+  "icon": "./.claude-plugin/icon.png"
+}
