@@ -1,12 +1,14 @@
-// Original-master protection / 原始母帶保護: masters are never overwritten, converted in place or moved —
-// make a working copy first. 原始母帶不覆寫、不轉檔、不搬移——要動先複製工作副本。
+// Protected folders / 受保護的資料夾: files in them are never deleted, moved, overwritten or converted in
+// place — make a working copy first. 不刪、不搬、不覆寫、不原地轉檔——要動先複製工作副本。
 // 純函式、不碰 $，所以能用 node 直接測（tests/masters.test.mjs）。
 //
-// 「母帶」＝ 下面兩種之一：
-//   ① 路徑中某一層資料夾叫 master／masters（不分大小寫）或名字裡有「母帶」
-//   ② 在 ~/.config/utuvo-guard/protected-masters.txt 列出的根目錄底下（每行一個，# 開頭是註解）
-// 只管音檔（AUDIO）；整個資料夾的刪除／搬移則看資料夾本身是不是母帶夾。
-// 從母帶「讀、複製出去」一律放行；擋的是 刪除、搬移、寫進去、原地轉檔／覆寫。
+// 受保護＝ 下面兩種之一：
+//   ① 你列的資料夾底下的任何檔案：選項 protectedFolders（逗號或換行分隔），
+//      或 ~/.config/utuvo-guard/protected.txt（每行一個，# 開頭是註解；舊名 protected-masters.txt 也讀）
+//      例：照片庫、論文、合約、母帶硬碟
+//   ② 內建：路徑中某一層資料夾叫 master／masters（不分大小寫）或名字裡有「母帶」，裡面的音檔
+// 整個資料夾的刪除／搬移則看資料夾本身是不是受保護的。
+// 「讀、複製出去」一律放行；擋的是 刪除、搬移、寫進去、原地轉檔／覆寫。
 
 export const AUDIO = /\.(wav|wave|aif|aiff|aifc|flac|caf|bwf|w64|rf64|dsf|dff|mp3|m4a|alac|ogg|opus)$/i
 const MASTER_DIR = /^(masters?|.*母帶.*)$/i
@@ -40,11 +42,12 @@ function dirParts(p: string): string[] {
   return parts
 }
 
-/** 這個路徑是不是母帶音檔（或母帶夾裡的音檔 glob） */
+/** 這個路徑是不是受保護的檔案：在你列的資料夾底下（任何檔案），或母帶夾裡的音檔（含 glob） */
 export function isMasterAudio(raw: string, ctx: Ctx): boolean {
   const p = expand(raw, ctx.home)
-  if (p.includes('/.git/') || !AUDIO.test(p.replace(/[*?\]]+$/, ''))) return false
-  return dirParts(p).some(s => MASTER_DIR.test(s)) || underRoot(p, ctx.roots)
+  if (p.includes('/.git/')) return false
+  if (underRoot(p, ctx.roots)) return true
+  return AUDIO.test(p.replace(/[*?\]]+$/, '')) && dirParts(p).some(s => MASTER_DIR.test(s))
 }
 
 /** 這個路徑本身是不是母帶資料夾（或在母帶根目錄裡面的資料夾） */
@@ -91,8 +94,8 @@ export type Msg = { zh: string; en: string }
 export type MasterHit = { id: string; why: Msg }
 
 const WHY: Msg = {
-  zh: '原始母帶不覆寫、不轉檔、不搬移。要處理請先複製一份工作副本到母帶夾以外的地方，再動副本。',
-  en: 'Original masters are never overwritten, converted in place or moved. Copy a working file outside the master folder and work on the copy.',
+  zh: '受保護的檔案（母帶夾，或你在保護清單裡列的資料夾）不刪、不搬、不覆寫、不原地轉檔。要處理請先複製一份到外面，再動副本。',
+  en: 'Protected files (a master folder, or a folder on your protected list) are never deleted, moved, overwritten or converted in place. Copy the file somewhere else and work on the copy.',
 }
 const msg = (zh: string, en: string): Msg => ({ zh: `${zh}${WHY.zh}`, en: `${en} ${WHY.en}` })
 
@@ -101,7 +104,7 @@ export function checkMasterSegment(seg: string, ctx: Ctx): MasterHit | null {
   // 重新導向：> 或 >> 寫進母帶
   for (const m of seg.matchAll(/(?:^|[^0-9&<>])>>?\|?\s*("[^"]+"|'[^']+'|\S+)/g)) {
     const target = shellWords(m[1] ?? '')[0] ?? ''
-    if (target !== '' && writesIntoMaster(target, ctx)) return { id: 'master-redirect', why: msg(`重新導向會寫進母帶 ${target}。`, `This redirect writes into the master ${target}.`) }
+    if (target !== '' && writesIntoMaster(target, ctx)) return { id: 'protect-redirect', why: msg(`重新導向會寫進受保護的檔案 ${target}。`, `This redirect writes into the protected file ${target}.`) }
   }
   let w = shellWords(seg)
   while (w.length > 0 && (LEAD.has(w[0] as string) || /^[A-Za-z_][A-Za-z0-9_]*=/.test(w[0] as string))) w = w.slice(1)
@@ -111,23 +114,23 @@ export function checkMasterSegment(seg: string, ctx: Ctx): MasterHit | null {
 
   if (['rm', 'unlink', 'shred', 'trash', 'srm', 'rmdir'].includes(cmd)) {
     const hit = paths.find(p => isMasterAudio(p, ctx) || isMasterDir(p, ctx))
-    if (hit !== undefined) return { id: 'master-delete', why: msg(`會刪除母帶 ${hit}。`, `This deletes the master ${hit}.`) }
+    if (hit !== undefined) return { id: 'protect-delete', why: msg(`會刪除受保護的檔案 ${hit}。`, `This deletes the protected file ${hit}.`) }
   }
   if (cmd === 'mv') {
     const hit = paths.find(p => isMasterAudio(p, ctx) || isMasterDir(p, ctx))
-    if (hit !== undefined) return { id: 'master-move', why: msg(`會搬移或覆寫母帶 ${hit}。`, `This moves or overwrites the master ${hit}.`) }
+    if (hit !== undefined) return { id: 'protect-move', why: msg(`會搬移或覆寫受保護的檔案 ${hit}。`, `This moves or overwrites the protected file ${hit}.`) }
   }
   if (['cp', 'ditto', 'rsync', 'install', 'ln', 'tee', 'dd'].includes(cmd)) {
     if (cmd === 'dd') {
       const of = args.find(a => a.startsWith('of='))
-      if (of !== undefined && writesIntoMaster(of.slice(3), ctx)) return { id: 'master-overwrite', why: msg(`會寫進母帶 ${of.slice(3)}。`, `This writes into the master ${of.slice(3)}.`) }
+      if (of !== undefined && writesIntoMaster(of.slice(3), ctx)) return { id: 'protect-overwrite', why: msg(`會寫進受保護的檔案 ${of.slice(3)}。`, `This writes into the protected file ${of.slice(3)}.`) }
     } else if (cmd === 'tee') {
       const hit = paths.find(p => writesIntoMaster(p, ctx))
-      if (hit !== undefined) return { id: 'master-overwrite', why: msg(`會寫進母帶 ${hit}。`, `This writes into the master ${hit}.`) }
+      if (hit !== undefined) return { id: 'protect-overwrite', why: msg(`會寫進受保護的檔案 ${hit}。`, `This writes into the protected file ${hit}.`) }
     } else {
       const dest = paths[paths.length - 1]
       if (paths.length >= 2 && dest !== undefined && writesIntoMaster(dest, ctx)) {
-        return { id: 'master-overwrite', why: msg(`目的地在母帶範圍 ${dest}，會覆寫或混進母帶夾。`, `The destination ${dest} is inside a master folder; it would overwrite or mix into it.`) }
+        return { id: 'protect-overwrite', why: msg(`目的地在受保護範圍 ${dest}，會覆寫或混進受保護的資料夾。`, `The destination ${dest} is inside a protected folder; it would overwrite or mix into it.`) }
       }
     }
   }
@@ -150,7 +153,7 @@ export function checkMasterSegment(seg: string, ctx: Ctx): MasterHit | null {
       if (last !== undefined && audio.length >= 2) outs.push(last)
     }
     const hit = outs.find(p => isMasterAudio(p, ctx))
-    if (hit !== undefined) return { id: 'master-convert', why: msg(`會原地轉檔或改寫母帶 ${hit}。`, `This converts or rewrites the master ${hit} in place.`) }
+    if (hit !== undefined) return { id: 'protect-convert', why: msg(`會原地轉檔或改寫受保護的檔案 ${hit}。`, `This converts or rewrites the protected file ${hit} in place.`) }
   }
   // sed -i／perl -i 改音檔不太可能，但 xattr -c、touch 不算破壞，放行。
   return null
@@ -158,6 +161,6 @@ export function checkMasterSegment(seg: string, ctx: Ctx): MasterHit | null {
 
 /** Write／Edit 這類工具：直接看 file_path */
 export function checkMasterFile(filePath: string, ctx: Ctx): MasterHit | null {
-  if (isMasterAudio(filePath, ctx)) return { id: 'master-file-tool', why: msg(`不能用編輯工具寫母帶 ${filePath}。`, `Edit tools may not write the master ${filePath}.`) }
+  if (isMasterAudio(filePath, ctx)) return { id: 'protect-file-tool', why: msg(`不能用編輯工具寫受保護的檔案 ${filePath}。`, `Edit tools may not write the protected file ${filePath}.`) }
   return null
 }

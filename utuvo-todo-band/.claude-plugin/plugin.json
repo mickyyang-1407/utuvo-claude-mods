@@ -1,0 +1,28 @@
+{
+  "name": "utuvo-todo-band",
+  "version": "1.0.0",
+  "description": "To-do band / 待辦條 — a line above the prompt with how many `- [ ]` items are still open in your TODO.md and the first one; a pane lists them all by section. Reads TODO.md in the project folder, else ~/TODO.md, or the file you set. Read-only. /todo-band off | on | list.",
+  "author": {
+    "name": "UTUVO"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mickyyang-1407/utuvo-claude-mods",
+  "keywords": ["todo", "tasks", "band", "markdown"],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language 語言",
+      "description": "auto follows your system language (LC_ALL / LANG); zh-TW = 繁體中文; en = English.",
+      "options": ["auto", "zh-TW", "en"],
+      "default": "auto"
+    },
+    "file": {
+      "type": "string",
+      "title": "To-do file 待辦檔",
+      "description": "Markdown file to read, e.g. ~/Notes/TODO.md. Empty: TODO.md in the project folder, else ~/TODO.md. 空白＝先找專案資料夾的 TODO.md，再找 ~/TODO.md。",
+      "default": ""
+    }
+  },
+  "icon": "./.claude-plugin/icon.png"
+}

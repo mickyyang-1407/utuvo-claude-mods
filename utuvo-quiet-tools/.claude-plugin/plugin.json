@@ -1,0 +1,21 @@
+{
+  "name": "utuvo-quiet-tools",
+  "version": "1.0.0",
+  "description": "Quiet tools / 收起工具列 — hides finished tool rows (Ran, Read, Edited…) in the desktop and mobile apps so the conversation reads like a chat; a running step shows one dim line, and errors stay visible. /quiet-tools off | on.",
+  "author": {
+    "name": "UTUVO"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/mickyyang-1407/utuvo-claude-mods",
+  "keywords": ["tools", "clean", "desktop", "mobile"],
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language 語言",
+      "description": "auto follows your system language (LC_ALL / LANG); zh-TW = 繁體中文; en = English.",
+      "options": ["auto", "zh-TW", "en"],
+      "default": "auto"
+    }
+  },
+  "icon": "./.claude-plugin/icon.png"
+}

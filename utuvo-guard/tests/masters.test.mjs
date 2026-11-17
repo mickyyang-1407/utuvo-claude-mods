@@ -7,26 +7,29 @@ const HOME = '/Users/m'
 const ctx = { home: HOME, roots: parseRoots('# 註解\n/Volumes/G-RAID PROJECT 2/Archive\n~/Music/Released/\n\n', HOME) }
 
 const BLOCK_BASH = [
-  ['master-delete', 'rm ~/Music/Album/Masters/01-song.wav'],
-  ['master-delete', 'rm -rf ~/Music/Album/Masters'],
-  ['master-delete', 'rm "/Volumes/G-RAID PROJECT 2/Archive/2024/mix.aif"'],
-  ['master-delete', 'rm /Volumes/G-RAID\\ PROJECT\\ 2/Archive/x/y.flac'],
-  ['master-delete', 'cd /tmp && rm -f ~/proj/母帶/*.wav'],
-  ['master-delete', 'trash ~/Music/Released/old.wav'],
-  ['master-delete', 'rm -r "/Volumes/G-RAID PROJECT 2/Archive"'],
-  ['master-delete', 'rm -rf "/Volumes/G-RAID PROJECT 2"'],
-  ['master-move', 'mv ~/a/masters/song.wav ~/b/song.wav'],
-  ['master-move', 'mv ~/a/Masters ~/b/'],
-  ['master-move', 'mv ~/work/fixed.wav ~/a/masters/song.wav'],
-  ['master-overwrite', 'cp ~/work/fixed.wav ~/a/masters/song.wav'],
-  ['master-overwrite', 'rsync -av --delete ~/work/ ~/Album/Masters/'],
-  ['master-overwrite', 'ditto ~/work/out.wav "/Volumes/G-RAID PROJECT 2/Archive/out.wav"'],
-  ['master-redirect', 'cat a.wav > ~/Album/Masters/a.wav'],
-  ['master-convert', 'ffmpeg -y -i ~/work/x.wav ~/Album/Masters/x.wav'],
-  ['master-convert', 'ffmpeg -i ~/Album/Masters/x.wav -ar 48000 ~/Album/Masters/x-48k.wav'],
-  ['master-convert', 'sox ~/Album/Masters/a.wav ~/Album/Masters/a.flac norm -1'],
-  ['master-convert', 'metaflac --remove-all-tags ~/Music/Released/a.flac'],
-  ['master-convert', 'rtk ffmpeg -y -i in.wav ~/Music/Released/in.wav'],
+  ['protect-delete', 'rm ~/Music/Album/Masters/01-song.wav'],
+  ['protect-delete', 'rm -rf ~/Music/Album/Masters'],
+  ['protect-delete', 'rm "/Volumes/G-RAID PROJECT 2/Archive/2024/mix.aif"'],
+  ['protect-delete', 'rm /Volumes/G-RAID\\ PROJECT\\ 2/Archive/x/y.flac'],
+  ['protect-delete', 'cd /tmp && rm -f ~/proj/母帶/*.wav'],
+  ['protect-delete', 'trash ~/Music/Released/old.wav'],
+  ['protect-delete', 'rm -r "/Volumes/G-RAID PROJECT 2/Archive"'],
+  ['protect-delete', 'rm -rf "/Volumes/G-RAID PROJECT 2"'],
+  ['protect-move', 'mv ~/a/masters/song.wav ~/b/song.wav'],
+  ['protect-move', 'mv ~/a/Masters ~/b/'],
+  ['protect-move', 'mv ~/work/fixed.wav ~/a/masters/song.wav'],
+  ['protect-overwrite', 'cp ~/work/fixed.wav ~/a/masters/song.wav'],
+  ['protect-overwrite', 'rsync -av --delete ~/work/ ~/Album/Masters/'],
+  ['protect-overwrite', 'ditto ~/work/out.wav "/Volumes/G-RAID PROJECT 2/Archive/out.wav"'],
+  ['protect-redirect', 'cat a.wav > ~/Album/Masters/a.wav'],
+  ['protect-convert', 'ffmpeg -y -i ~/work/x.wav ~/Album/Masters/x.wav'],
+  ['protect-convert', 'ffmpeg -i ~/Album/Masters/x.wav -ar 48000 ~/Album/Masters/x-48k.wav'],
+  ['protect-convert', 'sox ~/Album/Masters/a.wav ~/Album/Masters/a.flac norm -1'],
+  ['protect-convert', 'metaflac --remove-all-tags ~/Music/Released/a.flac'],
+  ['protect-convert', 'rtk ffmpeg -y -i in.wav ~/Music/Released/in.wav'],
+  ['protect-delete', 'rm ~/Music/Released/liner-notes.pdf'],
+  ['protect-move', 'mv "/Volumes/G-RAID PROJECT 2/Archive/photos/IMG_0001.HEIC" ~/Desktop/'],
+  ['protect-redirect', 'echo hi > ~/Music/Released/notes.txt'],
 ]
 
 const ALLOW_BASH = [
@@ -54,7 +57,7 @@ const ALLOW_BASH = [
   'rm ~/Music/ReleasedNotes/a.wav',
 ]
 
-const BLOCK_FILE = ['~/Album/Masters/a.wav', '/Users/m/x/母帶/b.aif', '/Volumes/G-RAID PROJECT 2/Archive/c.flac']
+const BLOCK_FILE = ['~/Music/Released/thesis.docx', '~/Album/Masters/a.wav', '/Users/m/x/母帶/b.aif', '/Volumes/G-RAID PROJECT 2/Archive/c.flac']
 const ALLOW_FILE = ['~/Album/Masters/README.md', '/Users/m/work/a.wav', '/Users/m/proj/src/master.ts', '/Users/m/x/master.wav']
 
 let bad = 0
@@ -75,7 +78,7 @@ for (const p of ALLOW_FILE) {
   if (!v.allow) { bad++; console.log('誤擋 file', v.rule, '←', p) }
 }
 const ok = checkBash('rm ~/Album/Masters/a.wav # guard-ok: owner said delete', ctx)
-if (!(ok.allow && ok.override === 'master-delete')) { bad++; console.log('逃生口沒記 override', JSON.stringify(ok)) }
+if (!(ok.allow && ok.override === 'protect-delete')) { bad++; console.log('逃生口沒記 override', JSON.stringify(ok)) }
 // 沒給 ctx（舊呼叫方式）也不能炸
 if (!checkBash('rm ~/a/Masters/x.wav').allow === undefined) bad++
 console.log(`Bash 該擋 ${BLOCK_BASH.length}、該放 ${ALLOW_BASH.length}；檔案該擋 ${BLOCK_FILE.length}、該放 ${ALLOW_FILE.length}；錯 ${bad} 條`)

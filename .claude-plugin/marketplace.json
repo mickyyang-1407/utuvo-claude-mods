@@ -5,35 +5,33 @@
     "url": "https://github.com/mickyyang-1407"
   },
   "metadata": {
-    "description": "Claude Code mods from UTUVO: a loudness card for audio work, a guard that protects masters, a setup catalog, chimes, session colors and a running-sessions band. 中英雙語。"
+    "description": "Claude Code mods from UTUVO: a running-sessions band, session color themes, a setup catalog, chimes, a guard against dangerous commands, quiet tool rows, a to-do band, and a loudness card for audio work. 中英雙語。"
   },
   "plugins": [
     {
-      "name": "utuvo-loudness",
-      "source": "./utuvo-loudness",
-      "description": "when ffmpeg measures loudness (ebur128 or loudnorm), draws Integrated, True Peak and LRA under the tool row and checks them against Atmos Music, Apple Music, Spotify/YouTube and EBU R128 targets.",
+      "name": "utuvo-session-board",
+      "source": "./utuvo-session-board",
+      "description": "a band above the prompt listing the Claude Code sessions busy right now on this Mac and how long each has run; over 3 hours is flagged as possibly stuck. Updates every 5 s.",
       "version": "1.0.0",
       "category": "productivity",
       "tags": [
         "mod",
-        "audio",
-        "loudness",
-        "ffmpeg",
-        "mastering"
+        "sessions",
+        "status",
+        "band"
       ]
     },
     {
-      "name": "utuvo-guard",
-      "source": "./utuvo-guard",
-      "description": "stops known agent mistakes before a Bash command runs (wrangler r2 without --remote, npm uninstall -g without --prefix, pkill -f rsync, self-matching pgrep waits, AppleScript content search in Mail) and protects original audio masters from being deleted, moved, overwritten or converted in place. Add `# guard-ok: <reason>` to override; everything is logged to ~/.local/log/utuvo-guard.log.",
+      "name": "utuvo-session-colors",
+      "source": "./utuvo-session-colors",
+      "description": "the color block at the start of a session title (16 kinds: 🟥🟧🟨🟩🟦🟪🟫⬛⬜🔳🟢🔷🔶🔹🏢🪐) sets a whole desktop theme and a night-sky backdrop; a 🔥 in the title adds a slowly breathing glow. Desktop app, dark mode.",
       "version": "1.0.0",
-      "category": "productivity",
+      "category": "appearance",
       "tags": [
         "mod",
-        "safety",
-        "audio",
-        "masters",
-        "guard"
+        "theme",
+        "colors",
+        "desktop"
       ]
     },
     {
@@ -63,29 +61,57 @@
       ]
     },
     {
-      "name": "utuvo-session-colors",
-      "source": "./utuvo-session-colors",
-      "description": "the color block at the start of a session title (16 kinds: 🟥🟧🟨🟩🟦🟪🟫⬛⬜🔳🟢🔷🔶🔹🏢🪐) sets a whole desktop theme and a night-sky backdrop; a 🔥 in the title adds a slowly breathing glow. Desktop app, dark mode.",
+      "name": "utuvo-guard",
+      "source": "./utuvo-guard",
+      "description": "checks every Bash command before it runs and stops the ones people fear an AI agent doing: rm -rf on your home or Documents, a force push to main, git reset --hard over uncommitted work, committing .env or private keys, DROP TABLE / DELETE without WHERE, erasing a disk. Protects folders you list (photos, thesis, masters) from being deleted, moved, overwritten or converted in place. Add `# guard-ok: <reason>` to override; everything is logged to ~/.local/log/utuvo-guard.log.",
+      "version": "1.1.0",
+      "category": "productivity",
+      "tags": [
+        "mod",
+        "safety",
+        "guard",
+        "git",
+        "secrets"
+      ]
+    },
+    {
+      "name": "utuvo-quiet-tools",
+      "source": "./utuvo-quiet-tools",
+      "description": "hides finished tool rows (Ran, Read, Edited…) in the desktop and mobile apps so the conversation reads like a chat; a running step shows one dim line, and errors stay visible. /quiet-tools off | on.",
       "version": "1.0.0",
       "category": "appearance",
       "tags": [
         "mod",
-        "theme",
-        "colors",
+        "tools",
+        "clean",
         "desktop"
       ]
     },
     {
-      "name": "utuvo-session-board",
-      "source": "./utuvo-session-board",
-      "description": "a band above the prompt listing the Claude Code sessions busy right now on this Mac and how long each has run; over 3 hours is flagged as possibly stuck. Updates every 5 s.",
+      "name": "utuvo-todo-band",
+      "source": "./utuvo-todo-band",
+      "description": "a line above the prompt with how many `- [ ]` items are still open in your TODO.md and the first one; a pane lists them all by section. Reads TODO.md in the project folder, else ~/TODO.md, or the file you set. Read-only. /todo-band off | on | list.",
       "version": "1.0.0",
       "category": "productivity",
       "tags": [
         "mod",
-        "sessions",
-        "status",
+        "todo",
+        "tasks",
         "band"
+      ]
+    },
+    {
+      "name": "utuvo-loudness",
+      "source": "./utuvo-loudness",
+      "description": "when ffmpeg measures loudness (ebur128 or loudnorm), draws Integrated, True Peak and LRA under the tool row and checks them against Atmos Music, Apple Music, Spotify/YouTube and EBU R128 targets.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "tags": [
+        "mod",
+        "audio",
+        "loudness",
+        "ffmpeg",
+        "mastering"
       ]
     }
   ]

@@ -6,13 +6,13 @@ import type { Ctx } from './masters.js'
 import { pickLang } from './i18n.js'
 import type { Lang } from './i18n.js'
 
-// Guard / 防呆閘: before a Bash command runs, check it against known mistakes (hooks/rules.ts) and the
-// original-master rules (hooks/masters.ts). A block tells Claude why and how to fix it; `# guard-ok: <reason>`
+// Guard / 防呆閘: before a Bash command runs, check it against dangerous commands (hooks/rules.ts) and the
+// protected-folder rules (hooks/masters.ts). A block tells Claude why and how to fix it; `# guard-ok: <reason>`
 // lets it through (logged). If the guard itself fails it lets the command through and logs that (fail-open).
 
 const LOG = '/.local/log/utuvo-guard.log'
-// 母帶根目錄清單（每行一個，# 註解）。讀不到就只靠資料夾名（master／masters／母帶）判斷。
-const ROOTS = '/.config/utuvo-guard/protected-masters.txt'
+// 受保護資料夾清單（每行一個，# 註解）＋選項 protectedFolders。讀不到就只靠資料夾名（master／masters／母帶）判斷。
+const ROOT_FILES = ['/.config/utuvo-guard/protected.txt', '/.config/utuvo-guard/protected-masters.txt']
 let ctx: Ctx = { home: '', roots: [] }
 let lang: Lang = 'en'
 
@@ -20,24 +20,26 @@ const TEXT = {
   zh: {
     blocked: '防呆閘（utuvo-guard）擋下：',
     escape: '真的要跑，在指令最後加上 `# guard-ok: <理由>`。',
-    noEscape: '編輯工具沒有逃生口；真的要動母帶，請自己在 Finder 或終端機處理。',
+    noEscape: '編輯工具沒有逃生口；真的要動受保護的檔案，請自己在 Finder 或終端機處理。',
     status: '🛑 防呆閘擋下：',
   },
   en: {
     blocked: 'Blocked by utuvo-guard: ',
     escape: 'If you really mean it, end the command with `# guard-ok: <reason>`.',
-    noEscape: 'Edit tools have no override; if a master really must change, do it yourself in Finder or a terminal.',
+    noEscape: 'Edit tools have no override; if a protected file really must change, do it yourself in Finder or a terminal.',
     status: '🛑 utuvo-guard blocked: ',
   },
 } as const
 
-async function loadCtx($: EngineInterface): Promise<void> {
+async function loadCtx($: EngineInterface, option: unknown): Promise<void> {
   const home = (await $.env.get('HOME')) ?? ''
-  let roots: string[] = []
-  try {
-    if (home !== '' && (await $.fs.exists(home + ROOTS))) roots = parseRoots(await $.fs.read(home + ROOTS), home)
-  } catch (err) {
-    await audit($, `master roots list unreadable, using folder names only: ${String(err).slice(0, 120)}`)
+  const roots: string[] = typeof option === 'string' ? parseRoots(option.replace(/,/g, '\n'), home) : []
+  for (const f of ROOT_FILES) {
+    try {
+      if (home !== '' && (await $.fs.exists(home + f))) roots.push(...parseRoots(await $.fs.read(home + f), home))
+    } catch (err) {
+      await audit($, `protected list ${f} unreadable, skipped: ${String(err).slice(0, 120)}`)
+    }
   }
   ctx = { home, roots }
 }
@@ -58,7 +60,7 @@ async function audit($: EngineInterface, line: string): Promise<void> {
 export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     lang = pickLang(options?.language, [await $.env.get('LC_ALL'), await $.env.get('LC_MESSAGES'), await $.env.get('LANG')])
-    await loadCtx($)
+    await loadCtx($, options?.protectedFolders)
     return next(e)
   })
 
